@@ -1,0 +1,1 @@
+web: java -Xmx300m -Dofbiz.port=$PORT -classpath libs/*:build/libs/ofbiz.jar org.apache.ofbiz.base.start.Start
