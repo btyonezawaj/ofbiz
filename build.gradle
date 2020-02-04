@@ -309,7 +309,17 @@ buildscript {
             classpath 'org.owasp:dependency-check-gradle:1.4.0'
         }
     }
+  repositories { jcenter() }
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+  }
 }
+apply plugin: 'java' // or 'groovy'. Must be explicitly applied
+apply plugin: 'com.github.johnrengelman.shadow'
+shadowJar {
+    zip64 true
+}
+
 if (project.hasProperty('enableOwasp')) {
     apply plugin: 'org.owasp.dependencycheck'
 }
@@ -495,6 +505,9 @@ task createTestReports(group: sysadminGroup, description: 'Generate HTML reports
         report(format:'frames', todir:'./runtime/logs/test-results/html')
     }
 }
+test.enabled = false
+task stage(dependsOn: ['build', 'copyToLib', 'loadDefault', 'clean', 'cleanlibs'])
+build.mustRunAfter clean
 /*
  * TODO replace this code with something more declarative.
  * We are using it so that if tests fail we still get HTML reports
@@ -506,6 +519,10 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
     }
 }
 
+task copyToLib(type: Copy) {
+    into "./libs"
+    from(configurations.runtime)
+}
 // ========== OFBiz Plugin Management ==========
 task createPlugin(group: ofbizPlugin, description: 'create a new plugin component based on specified templates') doLast {
     if (!project.hasProperty('pluginResourceName')) {
@@ -784,6 +801,9 @@ task cleanAnt(group: cleanupGroup, type: Delete, description: "clean old artifac
         }
     }
     delete 'ofbiz.jar'
+}
+task cleanlibs(group: cleanupGroup, description: 'Clean libs directory') doLast {
+    deleteAllInDirWithExclusions("${rootDir}/libs/", ['README'])
 }
 
 /*
