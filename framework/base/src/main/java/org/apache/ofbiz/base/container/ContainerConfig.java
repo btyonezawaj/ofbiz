@@ -94,6 +94,30 @@ public class ContainerConfig {
         }
     }
 
+    public static int getPropertyValue(ContainerConfig.Configuration.Property parentProp, String name, int defaultValue) {
+        ContainerConfig.Configuration.Property prop = parentProp.getProperty(name);
+        if (prop == null || UtilValidate.isEmpty(prop.value)) {
+            return defaultValue;
+        }
+        if (prop.value.startsWith("${") && prop.value.endsWith("}")) {
+            String sysprop = prop.value.replace("${", "").replace("}", "");
+            int num = defaultValue;
+            try {
+                num = Integer.parseInt(System.getProperty(sysprop));
+            } catch (Exception e) {
+                return defaultValue;
+            }
+            return num;
+        }
+        int num = defaultValue;
+        try {
+            num = Integer.parseInt(prop.value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+        return num;
+    }
+
     public static int getPropertyValue(ContainerConfig.Configuration parentProp, String name, int defaultValue) {
         ContainerConfig.Configuration.Property prop = parentProp.getProperty(name);
         if (prop == null || UtilValidate.isEmpty(prop.value)) {
@@ -127,6 +151,7 @@ public class ContainerConfig {
         }
     }
 
+/*
     public static int getPropertyValue(ContainerConfig.Configuration.Property parentProp, String name, int defaultValue) {
         ContainerConfig.Configuration.Property prop = parentProp.getProperty(name);
         if (prop == null || UtilValidate.isEmpty(prop.value)) {
@@ -141,7 +166,7 @@ public class ContainerConfig {
             return num;
         }
     }
-
+*/
     public static boolean getPropertyValue(ContainerConfig.Configuration.Property parentProp, String name, boolean defaultValue) {
         ContainerConfig.Configuration.Property prop = parentProp.getProperty(name);
         if (prop == null || UtilValidate.isEmpty(prop.value)) {
